@@ -1,202 +1,99 @@
-/*
-// Espera todo o conteúdo HTML da página ser carregado antes de executar o código
-document.addEventListener("DOMContentLoaded", function() {
+console.log("JS CARREGADO!");
 
-    // --- Lógica de Smooth Scroll (Atualizada para os novos links) ---
-    const linksDoMenu = document.querySelectorAll('header nav a[href^="#"]');
 
-    linksDoMenu.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
+/* ============================================================
+INICIALIZAÇÃO
+============================================================ */
+document.addEventListener("DOMContentLoaded", function () {
 
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
-        });
+iniciarSmoothScroll();
+iniciarFormCadastro();
+
+});
+
+/* ============================================================
+SMOOTH SCROLL
+============================================================ */
+function iniciarSmoothScroll() {
+const linksDoMenu = document.querySelectorAll('header nav a[href^="#"]');
+
+
+linksDoMenu.forEach(link => {
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const destino = document.querySelector(this.getAttribute('href'));
+        if (destino) {
+            destino.scrollIntoView({ behavior: 'smooth' });
+        }
     });
+});
 
-    // -------------------------------------------------------------
-    // BLOCO DE LÓGICA: ENVIO DO FORMULÁRIO DE CADASTRO DE USUÁRIO (já criado)
-    // -------------------------------------------------------------
-    const formCadastro = document.getElementById('form-cadastro');
-    const btnCadastrar = document.getElementById('btn-cadastrar');
 
-    if (formCadastro && btnCadastrar) {
-        formCadastro.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            // IMPLEMENTAÇÃO ASÍNCRONA DO CADASTRO (Fetch API)
-            handleFormSubmit(formCadastro, btnCadastrar, 'Cadastrar', 'Cadastro realizado com sucesso!', 'Falha no Cadastro.');
-        });
-    }
-
-    // -------------------------------------------------------------
-    // NOVO BLOCO DE LÓGICA: ENVIO DO FORMULÁRIO DE DOAÇÃO
-    // -------------------------------------------------------------
-    const formDoacao = document.getElementById('form-doacao');
-    const btnDoar = document.getElementById('btn-doar');
-
-    if (formDoacao && btnDoar) {
-        formDoacao.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            // IMPLEMENTAÇÃO ASÍNCRONA DA DOAÇÃO (Fetch API)
-            handleFormSubmit(formDoacao, btnDoar, 'Doar Agora', 'Doação registrada com sucesso!', 'Falha ao registrar Doação.');
-        });
-    }
-
-    // --- FUNÇÃO CENTRALIZADA PARA TRATAR ENVIO DE FORMS ---
-    async function handleFormSubmit(formElement, buttonElement, originalText, successMessage, failureMessage) {
-        
-        buttonElement.disabled = true;
-        buttonElement.textContent = 'Processando...';
-        
-        const formData = new FormData(formElement);
-        const userData = Object.fromEntries(formData.entries());
-
-        try {
-            const response = await fetch(formElement.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userData)
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                alert(successMessage);
-                formElement.reset();
-            } else {
-                const errorData = await response.json();
-                alert(`${failureMessage} Status: ${response.status}. Mensagem: ${errorData.message || 'Erro desconhecido.'}`);
-            }
-        } catch (error) {
-            console.error('Erro de rede ou conexão:', error);
-            alert('Erro ao tentar conectar com o servidor da API. Verifique a rede.');
-        } finally {
-            buttonElement.disabled = false;
-            buttonElement.textContent = originalText;
-        }
-    }
-
-  
-    const formApadrinhamento = document.getElementById('form-apadrinhamento');
-    const btnApadrinhar = document.getElementById('btn-apadrinhar');
-
-    if (formApadrinhamento && btnApadrinhar) {
-        formApadrinhamento.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            // IMPLEMENTAÇÃO ASÍNCRONA DO APADRINHAMENTO (Fetch API)
-            handleFormSubmit(formApadrinhamento, btnApadrinhar, 'Apadrinhar Animal', 'Solicitação de apadrinhamento enviada com sucesso!', 'Falha ao enviar Solicitação de Apadrinhamento.');
-        });
-    }
-    const formEventos = document.getElementById('form-eventos');
-    const btnCadastrarEvento = document.getElementById('btn-cadastrar-evento');
-
-    if (formEventos && btnCadastrarEvento) {
-        formEventos.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            // IMPLEMENTAÇÃO ASÍNCRONA DO CADASTRO DE EVENTO (Fetch API)
-            handleFormSubmit(formEventos, btnCadastrarEvento, 'Cadastrar Evento', 'Evento cadastrado com sucesso!', 'Falha ao cadastrar Evento.');
-        });
-    }
-
-    // --- BLOCO DE LÓGICA: CARREGAR ANIMAIS DA API ---
-
-const animaisContainer = document.querySelector('#animais .galeria-container');
-const animaisEndpoint = '/api/animais';
-
-// Função para construir o HTML de um animal
-function criarCardAnimal(animal) {
-    // A URL da imagem usa o ID do animal (ajuste o caminho se necessário)
-    const imageUrl = `imagens/animal_${animal.id_animal}.jpg`; 
-    
-    return `
-        <div class="item">
-            <img src="${imageUrl}" alt="${animal.nome}, ${animal.especie} ${animal.raca || ''}">
-            <p>
-                <strong>${animal.nome}</strong> (${animal.especie}, ${animal.idade} anos)
-                <br>${animal.descricao || 'Sem descrição.'}
-            </p>
-            <button class="btn-adotar" data-id="${animal.id_animal}">Adotar Agora</button>
-        </div>
-    `;
 }
 
-async function carregarAnimais() {
-    if (!animaisContainer) return; 
-
-    animaisContainer.innerHTML = '<h2>Carregando Animais Disponíveis...</h2>'; 
-
-    try {
-        const response = await fetch(animaisEndpoint, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (response.ok) {
-            const animais = await response.json();
-            
-            if (animais.length === 0) {
-                animaisContainer.innerHTML = '<h2>🐾 Nenhum animal disponível para adoção no momento. 🐾</h2>';
-                return;
-            }
-
-            // Gera o HTML para todos os animais
-            const cardsHtml = animais.map(criarCardAnimal).join('');
-            animaisContainer.innerHTML = cardsHtml;
-            
-            // Lógica para o botão de adoção
-            animaisContainer.querySelectorAll('.btn-adotar').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const idAnimal = e.target.getAttribute('data-id');
-                    alert(`Animal ID ${idAnimal} selecionado. Acesse a aba Formulários para finalizar.`);
-                });
-            });
-
-        } else {
-            animaisContainer.innerHTML = '<h2>Falha ao carregar a lista de animais. Tente novamente mais tarde.</h2>';
-        }
-
-    } catch (error) {
-        console.error('Erro de rede ao carregar animais:', error);
-        animaisContainer.innerHTML = '<h2>Erro de conexão com a API.</h2>';
-    }
+/* ============================================================
+FORM CADASTRO DE USUÁRIO
+============================================================ */
+function iniciarFormCadastro() {
+const form = document.getElementById("form-cadastro");
+if (!form) {
+    console.error("Form #form-cadastro não encontrado.");
+    return;
 }
 
-/*carregarAnimais();*/
+form.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-// -------------------------------------------------------------
-// BLOCO DE LÓGICA: TESTE DE ENVIO DE DADOS VIA POST
-// -------------------------------------------------------------
-function enviarDados() {
-
+    // Captura segura dos campos
     const dados = {
-        nome: "Felipe",
-        email: "teste@teste.com"
+        nome: form.querySelector("#nome")?.value ?? "",
+        email: form.querySelector("#email")?.value ?? "",
+        senha: form.querySelector("#senha")?.value ?? "",
+        telefone: form.querySelector("#telefone")?.value ?? "",
+        cpf: form.querySelector("#cpf")?.value 
+           ?? form.querySelector('[name="cpf"]')?.value
+           ?? form.querySelector('[name="CPF"]')?.value
+           ?? "",
+        tipo_usuario: "Adotante"
     };
 
-    fetch("http://localhost/OngDogs/public/router.php/api/usuarios", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(dados)
-    })
-    .then(response => response.json())
-    .then(retorno => {
-        console.log(retorno);
+    console.log("DEBUG → Dados a enviar:", dados);
 
-        if(!retorno.erro){
-            alert("Cadastrado com sucesso!");
-        } else {
-            alert("Erro: " + retorno.mensagem);
+    try {
+        const resposta = await fetch("http://localhost/OngDogs/public/router.php/api/usuarios", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        console.log("DEBUG → status:", resposta.status, resposta.statusText);
+
+        const texto = await resposta.text();
+        console.log("DEBUG → body bruto:", texto);
+
+        // Tentar converter em JSON
+        let json;
+        try {
+            json = JSON.parse(texto);
+        } catch (err) {
+            console.warn("Resposta não é JSON válido.", err);
+            alert("Erro: resposta inválida da API. Veja console.");
+            return;
         }
-    })
-    .catch(error => console.error("Erro ao enviar POST:", error));
+
+        console.log("DEBUG → JSON parseado:", json);
+
+        if (!json.erro) {
+            alert("Usuário cadastrado com sucesso!");
+            form.reset();
+        } else {
+            alert("Erro da API: " + json.mensagem);
+        }
+
+    } catch (erro) {
+        console.error("DEBUG → Erro no fetch:", erro);
+        alert("Falha ao conectar com a API. Veja console.");
+    }
+});
 }
-
-

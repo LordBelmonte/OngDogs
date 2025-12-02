@@ -105,14 +105,14 @@
         <div class="forms-container">
             
             <h3>1. Cadastro de Novo Usuário</h3>
-            <form id="form-cadastro" method="POST" action="/api/usuarios" class="form-card">
+            <form id="form-cadastro" method="POST" action="" class="form-card">
                 <div class="form-group"><label for="nome">Nome:</label><input type="text" id="nome" name="nome" required maxlength="50"></div>
                 <div class="form-group"><label for="email">E-mail:</label><input type="email" id="email" name="email" required maxlength="40"></div>
                 <div class="form-group"><label for="senha">Senha:</label><input type="password" id="senha" name="senha" required maxlength="20"></div>
                 <div class="form-group"><label for="telefone">Telefone:</label><input type="tel" id="telefone" name="telefone" placeholder="(DD) 9XXXX-XXXX" maxlength="16"></div>
                 <div class="form-group"><label for="cpf">CPF:</label><input type="text" id="cpf" name="CPF" required maxlength="16"></div>
                 <input type="hidden" name="tipo_usuario" value="Adotante">
-                <button type="submit" id="btn-cadastrar" onclick="enviarDados()">Cadastrar</button>
+                <button type="submit" id="btn-cadastrar">Cadastrar</button>
             </form>
             <br>
 
@@ -236,44 +236,7 @@
         </a>
     </div>
     
-    <script src=script.js> 
-
-        //Garante que a página seja carregada antes de executar os comando Jquery
-        $(document).ready( function () { 
-            carregaDadosApi();
-        }) ;
-
-        function carregaDadosApi() {
-            $.ajax( { 
-                url : 'http://localhost/OngDogs/public/router.php/api/usuarios' , //endpoint da API
-                method : 'GET'  ,
-                dataType : 'json' ,
-                success : function ( respostaApi  ) { 
-                    const tabela = $('#tabelaDados') ;
-                    if( respostaApi.erro ) {
-                        tabela.append( `<tr><td colspan="4" style="color: red;"> ${ respostaApi.mensagem } </td></tr>` ) ;
-                    } else if ( respostaApi.dados.length === 0 ) {
-                        tabela.append( `<tr><td colspan="4" style="color: red;"> Tabela vazia </td></tr>` ) ;
-                    } else {
-                        respostaApi.dados.forEach( function ( item ) {  
-                            tabela.append( `<tr>
-                                    <td> ${item.codigo} </td>
-                                    <td> ${item.nome} </td>
-                                    <td> ${item.email} </td>
-                                    <td> ${item.telefone} </td>
-                                </tr>
-                            ` ) ;
-                        }) ;
-                    }
-
-                } , 
-                error : function () { 
-                    $('#tabelaDados').html( '<tr><td colspan="4" style="color: red;">Erro ao carregar a API</td></tr>' ) ; 
-                }
-            } ) ;
-        }
-
-    </script>
+    <script src="script.js"></script>
 
 </body>
 </html>

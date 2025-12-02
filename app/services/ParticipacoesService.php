@@ -1,6 +1,6 @@
 <?php
 
-    include_once "Participacoes.php";
+     include_once __DIR__ . "/../models/Participacoes.php";
 
     class ParticipacoesService {
         //Método GET para buscar Participacoes
