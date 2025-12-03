@@ -113,6 +113,11 @@
         <label>Email:</label>
         <input type="email" id="edit-email"><br><br>
 
+    
+        <label for="edit-senha">Senha (opcional):</label>
+        <input type="password" id="edit-senha" placeholder="Deixe vazio para não alterar">
+
+
         <label>Telefone:</label>
         <input type="text" id="edit-telefone"><br><br>
 

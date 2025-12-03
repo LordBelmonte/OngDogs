@@ -91,12 +91,17 @@ async function salvarEdicao() {
     const id = document.getElementById("edit-id").value;
 
     const dadosAtualizados = {
-        nome: document.getElementById("edit-nome").value,
-        email: document.getElementById("edit-email").value,
-        telefone: document.getElementById("edit-telefone").value,
-        cpf: document.getElementById("edit-cpf").value,
-        tipo_usuario: document.getElementById("edit-tipo").value
-    };
+    nome: document.getElementById("edit-nome").value,
+    email: document.getElementById("edit-email").value,
+    telefone: document.getElementById("edit-telefone").value,
+    cpf: document.getElementById("edit-cpf").value,
+    tipo_usuario: document.getElementById("edit-tipo").value,
+    }
+
+    const senhaCampo = document.getElementById("edit-senha");
+    if (senhaCampo && senhaCampo.value.trim() !== "") {
+        dadosAtualizados.senha = senhaCampo.value;
+    }
 
     const resp = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
