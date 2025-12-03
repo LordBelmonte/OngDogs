@@ -76,13 +76,13 @@ async function editarUsuario(id) {
 
     const u = data.dados;
 
-    document.getElementById("edit-id").value = u.id_usuario;
-    document.getElementById("edit-nome").value = u.nome;
-    document.getElementById("edit-email").value = u.email;
-    document.getElementById("edit-telefone").value = u.telefone;
-    document.getElementById("edit-cpf").value = u.cpf;
-    document.getElementById("edit-tipo").value = u.tipo_usuario;
-
+    document.getElementById("edit-id").value       = pegarCampo(u, ["id_usuario","id","ID"]);
+    document.getElementById("edit-nome").value     = pegarCampo(u, ["nome","Nome"]);
+    document.getElementById("edit-email").value    = pegarCampo(u, ["email"]);
+    document.getElementById("edit-telefone").value = pegarCampo(u, ["telefone","telefone_usuario"]);
+    document.getElementById("edit-cpf").value      = pegarCampo(u, ["cpf","CPF","cpf_usuario","CPF_usuario","cpf_user"]);
+    document.getElementById("edit-tipo").value     = pegarCampo(u, ["tipo_usuario","tipo"]);
+    
     document.getElementById("edit-form").classList.remove("hidden");
 }
 
@@ -91,12 +91,12 @@ async function salvarEdicao() {
     const id = document.getElementById("edit-id").value;
 
     const dadosAtualizados = {
-    nome: document.getElementById("edit-nome").value,
-    email: document.getElementById("edit-email").value,
-    telefone: document.getElementById("edit-telefone").value,
-    cpf: document.getElementById("edit-cpf").value,
-    tipo_usuario: document.getElementById("edit-tipo").value,
-    }
+        nome: document.getElementById("edit-nome").value,
+        email: document.getElementById("edit-email").value,
+        telefone: document.getElementById("edit-telefone").value,
+        cpf: document.getElementById("edit-cpf").value,
+        tipo_usuario: document.getElementById("edit-tipo").value,
+    };
 
     const senhaCampo = document.getElementById("edit-senha");
     if (senhaCampo && senhaCampo.value.trim() !== "") {
@@ -113,10 +113,14 @@ async function salvarEdicao() {
     alert(data.mensagem);
 
     document.getElementById("edit-form").classList.add("hidden");
-    carregarUsuarios();
+
+    // 🔥 CORRETO: recarrega a listagem
+    await carregarUsuarios();
 }
+
 
 // ⚪ 5. CANCELAR EDIÇÃO
 function cancelarEdicao() {
     document.getElementById("edit-form").classList.add("hidden");
 }
+ 

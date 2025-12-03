@@ -20,6 +20,7 @@
             <a href="#contato">Contato</a>
             <a href="#formularios">Formulários</a>
             <a href="#depoimentos">Depoimentos</a>
+            <a href="admin.php">Admin</a>
         </nav>
     </header>
 

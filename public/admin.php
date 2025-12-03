@@ -15,9 +15,43 @@
             padding: 20px;
         }
 
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background-color: #8B4513; 
+            z-index: 1000;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+        }
+        header .logo {
+            height: 70px;
+            width: auto;
+            border-radius: 50%;
+        }
+
+        header nav {
+        display: flex;
+        gap: 30px; 
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 0 10px;
+        max-width: 70%;
+        justify-content: flex-end;
+        }
+
         h1 {
             text-align: center;
             margin-bottom: 25px;
+        }
+
+        section{
+            padding: 30px;
         }
 
         table {
@@ -26,6 +60,7 @@
             background: white;
             border-radius: 8px;
             overflow: hidden;
+            
         }
 
         th, td {
@@ -60,7 +95,8 @@
         .btn-refresh {
             background: #5cb85c;
             color: white;
-            margin-bottom: 15px;
+            margin: 65px 0px 12px 0px;
+            float: right;
         }
 
         .hidden {
@@ -78,9 +114,17 @@
 
 <body>
 
-    <h1>Painel Administrativo</h1>
+    <header>
+        <img src="imagens/logo_ong.png" alt="Logo Instituto Eu Sou Bicho" class="logo">
+        <h1>Painel Administrativo</h1>
+            <nav>
+                <a href="home.php">Home</a>
+            </nav>
+    </header><br>
 
+    <section>
     <button class="btn-refresh" onclick="carregarUsuarios()">🔄 Atualizar Lista</button>
+    </section>
 
     <table>
         <thead>
