@@ -82,4 +82,74 @@ class Doacoes {
     }
 }
 
+// Processar POST requests se houver action=criar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'criar') {
+    session_start();
+    header('Content-Type: application/json');
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$input) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    
+    // Adicionar dados obrigatórios que não vem do formulário
+    $input['id_usuario'] = $_SESSION['user_id'] ?? 0;
+    $input['data_doacao'] = date('Y-m-d H:i:s');
+    
+    $resultado = Doacoes::inserir($input);
+    echo json_encode($resultado);
+    exit;
+}
+
+// Processar GET requests para listar doações do usuário
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'listar') {
+    session_start();
+    header('Content-Type: application/json');
+    
+    $id_usuario = $_SESSION['user_id'] ?? 0;
+    
+    if (!$id_usuario) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Usuário não autenticado', 'dados' => []]);
+        exit;
+    }
+    
+    $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
+    $sql = "SELECT * FROM doacoes WHERE id_usuario = :id_usuario ORDER BY data_doacao DESC";
+    $stm = $conexao->prepare($sql);
+    $stm->bindValue(":id_usuario", $id_usuario);
+    $stm->execute();
+    
+    if ($stm->rowCount() > 0) {
+        $dados = $stm->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['erro' => false, 'mensagem' => 'Doações encontradas', 'dados' => $dados]);
+    } else {
+        echo json_encode(['erro' => true, 'mensagem' => 'Nenhuma doação encontrada', 'dados' => []]);
+    }
+    exit;
+}
+
+// Processar DELETE requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'deletar') {
+    session_start();
+    header('Content-Type: application/json');
+    
+    $id = $_GET['id'] ?? 0;
+    $id_usuario = $_SESSION['user_id'] ?? 0;
+    
+    if (!$id || !$id_usuario) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    
+    $resultado = Doacoes::deletar($id);
+    echo json_encode($resultado);
+    exit;
+}
+
 ?>
+
+
+
+

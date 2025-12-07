@@ -1,99 +1,354 @@
 console.log("JS CARREGADO!");
 
-
 /* ============================================================
 INICIALIZAÇÃO
 ============================================================ */
 document.addEventListener("DOMContentLoaded", function () {
-
-iniciarSmoothScroll();
-iniciarFormCadastro();
-
+    iniciarSmoothScroll();
+    iniciarFormCadastro();
+    iniciarFormDoacao();
+    iniciarFormAdocao();
+    iniciarFormApadrinhamento();
+    iniciarFormEventos();
 });
 
 /* ============================================================
 SMOOTH SCROLL
 ============================================================ */
 function iniciarSmoothScroll() {
-const linksDoMenu = document.querySelectorAll('header nav a[href^="#"]');
+    const linksDoMenu = document.querySelectorAll('header nav a[href^="#"]');
 
+    linksDoMenu.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
 
-linksDoMenu.forEach(link => {
-    link.addEventListener('click', function (e) {
-        e.preventDefault();
-
-        const destino = document.querySelector(this.getAttribute('href'));
-        if (destino) {
-            destino.scrollIntoView({ behavior: 'smooth' });
-        }
+            const destino = document.querySelector(this.getAttribute('href'));
+            if (destino) {
+                destino.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
     });
-});
-
-
 }
 
 /* ============================================================
 FORM CADASTRO DE USUÁRIO
 ============================================================ */
 function iniciarFormCadastro() {
-const form = document.getElementById("form-cadastro");
-if (!form) {
-    console.error("Form #form-cadastro não encontrado.");
-    return;
+    const form = document.getElementById("form-cadastro");
+    if (!form) {
+        console.error("Form #form-cadastro não encontrado.");
+        return;
+    }
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // Captura segura dos campos
+        const dados = {
+            nome: form.querySelector("#nome")?.value ?? "",
+            email: form.querySelector("#email")?.value ?? "",
+            senha: form.querySelector("#senha")?.value ?? "",
+            telefone: form.querySelector("#telefone")?.value ?? "",
+            cpf: form.querySelector("#cpf")?.value 
+               ?? form.querySelector('[name="cpf"]')?.value
+               ?? form.querySelector('[name="CPF"]')?.value
+               ?? "",
+            tipo_usuario: "Adotante"
+        };
+
+        console.log("DEBUG → Dados cadastro:", dados);
+
+        try {
+            const resposta = await fetch("../app/models/Usuarios.php?action=cadastrar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            const texto = await resposta.text();
+            console.log("DEBUG → Resposta cadastro:", texto);
+
+            let json;
+            try {
+                json = JSON.parse(texto);
+            } catch (err) {
+                console.warn("Resposta não é JSON válido.", err);
+                mostrarFeedbackCadastro("Erro: resposta inválida", "error");
+                return;
+            }
+
+            if (!json.erro) {
+                mostrarFeedbackCadastro("✓ Usuário cadastrado com sucesso!", "success");
+                form.reset();
+            } else {
+                mostrarFeedbackCadastro("❌ " + json.mensagem, "error");
+            }
+
+        } catch (erro) {
+            console.error("Erro no fetch cadastro:", erro);
+            mostrarFeedbackCadastro("❌ Erro de conexão. Tente novamente.", "error");
+        }
+    });
 }
 
-form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    // Captura segura dos campos
-    const dados = {
-        nome: form.querySelector("#nome")?.value ?? "",
-        email: form.querySelector("#email")?.value ?? "",
-        senha: form.querySelector("#senha")?.value ?? "",
-        telefone: form.querySelector("#telefone")?.value ?? "",
-        cpf: form.querySelector("#cpf")?.value 
-           ?? form.querySelector('[name="cpf"]')?.value
-           ?? form.querySelector('[name="CPF"]')?.value
-           ?? "",
-        tipo_usuario: "Adotante"
-    };
-
-    console.log("DEBUG → Dados a enviar:", dados);
-
-    try {
-        const resposta = await fetch("http://localhost/OngDogs/public/router.php/api/usuarios", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dados)
-        });
-
-        console.log("DEBUG → status:", resposta.status, resposta.statusText);
-
-        const texto = await resposta.text();
-        console.log("DEBUG → body bruto:", texto);
-
-        // Tentar converter em JSON
-        let json;
-        try {
-            json = JSON.parse(texto);
-        } catch (err) {
-            console.warn("Resposta não é JSON válido.", err);
-            alert("Erro: resposta inválida da API. Veja console.");
-            return;
-        }
-
-        console.log("DEBUG → JSON parseado:", json);
-
-        if (!json.erro) {
-            alert("Usuário cadastrado com sucesso!");
-            form.reset();
-        } else {
-            alert("Erro da API: " + json.mensagem);
-        }
-
-    } catch (erro) {
-        console.error("DEBUG → Erro no fetch:", erro);
-        alert("Falha ao conectar com a API. Veja console.");
+function mostrarFeedbackCadastro(mensagem, tipo) {
+    const feedback = document.getElementById("feedback-cadastro");
+    if (feedback) {
+        feedback.textContent = mensagem;
+        feedback.className = 'form-feedback ' + tipo;
+        
+        setTimeout(() => {
+            feedback.className = 'form-feedback';
+        }, 5000);
     }
-});
+}
+
+/* ============================================================
+FORM DOAÇÃO
+============================================================ */
+function iniciarFormDoacao() {
+    const form = document.getElementById("form-doacao");
+    if (!form) {
+        console.error("Form #form-doacao não encontrado.");
+        return;
+    }
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const dados = {
+            valor: form.querySelector("#valor")?.value ?? "",
+            forma_paga: form.querySelector("#forma_paga")?.value ?? ""
+        };
+
+        console.log("DEBUG → Dados doação:", dados);
+
+        try {
+            const resposta = await fetch("../app/models/Doacoes.php?action=criar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            const texto = await resposta.text();
+            let json;
+            try {
+                json = JSON.parse(texto);
+            } catch (err) {
+                mostrarFeedbackDoacao("Erro: resposta inválida", "error");
+                return;
+            }
+
+            if (!json.erro) {
+                mostrarFeedbackDoacao("✓ Doação registrada com sucesso!", "success");
+                form.reset();
+            } else {
+                mostrarFeedbackDoacao("❌ " + json.mensagem, "error");
+            }
+
+        } catch (erro) {
+            console.error("Erro no fetch doação:", erro);
+            mostrarFeedbackDoacao("❌ Erro de conexão. Tente novamente.", "error");
+        }
+    });
+}
+
+function mostrarFeedbackDoacao(mensagem, tipo) {
+    const feedback = document.getElementById("feedback-doacao");
+    if (feedback) {
+        feedback.textContent = mensagem;
+        feedback.className = 'form-feedback ' + tipo;
+        
+        setTimeout(() => {
+            feedback.className = 'form-feedback';
+        }, 5000);
+    }
+}
+
+/* ============================================================
+FORM ADOÇÃO
+============================================================ */
+function iniciarFormAdocao() {
+    const form = document.getElementById("form-adocao");
+    if (!form) {
+        console.error("Form #form-adocao não encontrado.");
+        return;
+    }
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const dados = {
+            id_animal: form.querySelector("#id_animal")?.value ?? "",
+            motivo_adocao: form.querySelector("#motivo_adocao")?.value ?? ""
+        };
+
+        console.log("DEBUG → Dados adoção:", dados);
+
+        try {
+            const resposta = await fetch("../app/models/Adocoes.php?action=criar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            const texto = await resposta.text();
+            let json;
+            try {
+                json = JSON.parse(texto);
+            } catch (err) {
+                mostrarFeedbackAdocao("Erro: resposta inválida", "error");
+                return;
+            }
+
+            if (!json.erro) {
+                mostrarFeedbackAdocao("✓ Solicitação de adoção enviada!", "success");
+                form.reset();
+            } else {
+                mostrarFeedbackAdocao("❌ " + json.mensagem, "error");
+            }
+
+        } catch (erro) {
+            console.error("Erro no fetch adoção:", erro);
+            mostrarFeedbackAdocao("❌ Erro de conexão. Tente novamente.", "error");
+        }
+    });
+}
+
+function mostrarFeedbackAdocao(mensagem, tipo) {
+    const feedback = document.getElementById("feedback-adocao");
+    if (feedback) {
+        feedback.textContent = mensagem;
+        feedback.className = 'form-feedback ' + tipo;
+        
+        setTimeout(() => {
+            feedback.className = 'form-feedback';
+        }, 5000);
+    }
+}
+
+/* ============================================================
+FORM APADRINHAMENTO
+============================================================ */
+function iniciarFormApadrinhamento() {
+    const form = document.getElementById("form-apadrinhamento");
+    if (!form) {
+        console.error("Form #form-apadrinhamento não encontrado.");
+        return;
+    }
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const dados = {
+            id_animal: form.querySelector("#id_animal_padrinho")?.value ?? "",
+            valor_contribuicao: form.querySelector("#valor_contribuicao")?.value ?? ""
+        };
+
+        console.log("DEBUG → Dados apadrinhamento:", dados);
+
+        try {
+            const resposta = await fetch("../app/models/Apadrinhamento.php?action=criar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            const texto = await resposta.text();
+            let json;
+            try {
+                json = JSON.parse(texto);
+            } catch (err) {
+                mostrarFeedbackApadrinhamento("Erro: resposta inválida", "error");
+                return;
+            }
+
+            if (!json.erro) {
+                mostrarFeedbackApadrinhamento("✓ Apadrinhamento registrado com sucesso!", "success");
+                form.reset();
+            } else {
+                mostrarFeedbackApadrinhamento("❌ " + json.mensagem, "error");
+            }
+
+        } catch (erro) {
+            console.error("Erro no fetch apadrinhamento:", erro);
+            mostrarFeedbackApadrinhamento("❌ Erro de conexão. Tente novamente.", "error");
+        }
+    });
+}
+
+function mostrarFeedbackApadrinhamento(mensagem, tipo) {
+    const feedback = document.getElementById("feedback-apadrinhamento");
+    if (feedback) {
+        feedback.textContent = mensagem;
+        feedback.className = 'form-feedback ' + tipo;
+        
+        setTimeout(() => {
+            feedback.className = 'form-feedback';
+        }, 5000);
+    }
+}
+
+/* ============================================================
+FORM EVENTOS
+============================================================ */
+function iniciarFormEventos() {
+    const form = document.getElementById("form-eventos");
+    if (!form) {
+        console.error("Form #form-eventos não encontrado.");
+        return;
+    }
+
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const dados = {
+            nome: form.querySelector("#nome_evento")?.value ?? "",
+            descricao: form.querySelector("#descricao_evento")?.value ?? "",
+            data_inicio: form.querySelector("#data_inicio")?.value ?? "",
+            data_fim: form.querySelector("#data_fim")?.value ?? ""
+        };
+
+        console.log("DEBUG → Dados eventos:", dados);
+
+        try {
+            const resposta = await fetch("../app/models/Eventos.php?action=criar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+
+            const texto = await resposta.text();
+            let json;
+            try {
+                json = JSON.parse(texto);
+            } catch (err) {
+                mostrarFeedbackEventos("Erro: resposta inválida", "error");
+                return;
+            }
+
+            if (!json.erro) {
+                mostrarFeedbackEventos("✓ Evento cadastrado com sucesso!", "success");
+                form.reset();
+            } else {
+                mostrarFeedbackEventos("❌ " + json.mensagem, "error");
+            }
+
+        } catch (erro) {
+            console.error("Erro no fetch eventos:", erro);
+            mostrarFeedbackEventos("❌ Erro de conexão. Tente novamente.", "error");
+        }
+    });
+}
+
+function mostrarFeedbackEventos(mensagem, tipo) {
+    const feedback = document.getElementById("feedback-eventos");
+    if (feedback) {
+        feedback.textContent = mensagem;
+        feedback.className = 'form-feedback ' + tipo;
+        
+        setTimeout(() => {
+            feedback.className = 'form-feedback';
+        }, 5000);
+    }
 }

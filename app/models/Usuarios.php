@@ -193,4 +193,20 @@ require_once $rootPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 
     }
 }
 
+// Processar POST requests se houver action=cadastrar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'cadastrar') {
+    header('Content-Type: application/json');
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$input) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    
+    $resultado = Usuarios::inserir($input);
+    echo json_encode($resultado);
+    exit;
+}
+
 ?>

@@ -97,4 +97,26 @@ class Adocoes {
     }
 }
 
+// Processar POST requests se houver action=criar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'criar') {
+    session_start();
+    header('Content-Type: application/json');
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$input) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    
+    // Adicionar dados obrigatórios que não vem do formulário
+    $input['id_usuario'] = $_SESSION['user_id'] ?? 0;
+    $input['data_adocao'] = date('Y-m-d H:i:s');
+    
+    $resultado = Adocoes::inserir($input);
+    echo json_encode($resultado);
+    exit;
+}
+
 ?>
+

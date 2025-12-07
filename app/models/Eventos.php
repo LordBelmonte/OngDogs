@@ -80,4 +80,61 @@ class Eventos {
     }
 }
 
+// Processar POST requests se houver action=criar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'criar') {
+    header('Content-Type: application/json');
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    if (!$input) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    
+    // Mapear campos do formulário para os campos do banco
+    $input['titulo'] = $input['nome'] ?? '';
+    $input['data_evento'] = $input['data_inicio'] ?? null;
+    
+    $resultado = Eventos::inserir($input);
+    echo json_encode($resultado);
+    exit;
+}
+
+// Processar GET requests para listar eventos
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'listar') {
+    header('Content-Type: application/json');
+    
+    $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
+    $sql = "SELECT * FROM eventos ORDER BY data_evento DESC";
+    $stm = $conexao->prepare($sql);
+    $stm->execute();
+    
+    if ($stm->rowCount() > 0) {
+        $dados = $stm->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['erro' => false, 'mensagem' => 'Eventos encontrados', 'dados' => $dados]);
+    } else {
+        echo json_encode(['erro' => true, 'mensagem' => 'Nenhum evento encontrado', 'dados' => []]);
+    }
+    exit;
+}
+
+// Processar DELETE requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'deletar') {
+    session_start();
+    header('Content-Type: application/json');
+    
+    $id = $_GET['id'] ?? 0;
+    
+    if (!$id) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    
+    $resultado = Eventos::deletar($id);
+    echo json_encode($resultado);
+    exit;
+}
+
 ?>
+
+

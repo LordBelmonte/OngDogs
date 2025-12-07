@@ -120,7 +120,7 @@ if (isset($_SESSION['user_id'])) {
         <div class="forms-container">
             
             <h3>1. Cadastro de Novo Usuário</h3>
-            <form id="form-cadastro" method="POST" action="" class="form-card">
+            <form id="form-cadastro" class="form-card">
                 <div class="form-group"><label for="nome">Nome:</label><input type="text" id="nome" name="nome" required maxlength="50"></div>
                 <div class="form-group"><label for="email">E-mail:</label><input type="email" id="email" name="email" required maxlength="40"></div>
                 <div class="form-group"><label for="senha">Senha:</label><input type="password" id="senha" name="senha" required maxlength="20"></div>
@@ -128,11 +128,12 @@ if (isset($_SESSION['user_id'])) {
                 <div class="form-group"><label for="cpf">CPF:</label><input type="text" id="cpf" name="CPF" required maxlength="16"></div>
                 <input type="hidden" name="tipo_usuario" value="Adotante">
                 <button type="submit" id="btn-cadastrar">Cadastrar</button>
+                <div class="form-feedback" id="feedback-cadastro"></div>
             </form>
             <br>
 
             <h3>2. Formulário de Doação</h3>
-            <form id="form-doacao" method="POST" action="/api/doacoes" class="form-card">
+            <form id="form-doacao" class="form-card">
                 <div class="form-group"><label for="valor">Valor da Doação (R$):</label><input type="text" id="valor" name="valor" required placeholder="Ex: 50.00"></div>
                 <div class="form-group">
                     <label for="forma_paga">Forma de Pagamento:</label>
@@ -144,29 +145,33 @@ if (isset($_SESSION['user_id'])) {
                     </select>
                 </div>
                 <button type="submit" id="btn-doar">Doar Agora</button>
+                <div class="form-feedback" id="feedback-doacao"></div>
             </form>
 
             <h3>3. Formulário de Solicitação de Adoção</h3>
-            <form id="form-adocao" method="POST" action="/api/adocoes" class="form-card">
+            <form id="form-adocao" class="form-card">
                 <div class="form-group"><label for="id_animal">ID do Animal Desejado:</label><input type="number" id="id_animal" name="id_animal" required placeholder="Insira o ID (Ex: 1 para Rex)"></div>
                 <div class="form-group"><label for="motivo_adocao">Por que deseja adotar?</label><textarea id="motivo_adocao" name="motivo_adocao" rows="4" required></textarea></div>
                 <button type="submit" id="btn-adocao">Solicitar Adoção</button>
+                <div class="form-feedback" id="feedback-adocao"></div>
             </form>
 
             <h3>4. Formulário de Apadrinhamento</h3>
-            <form id="form-apadrinhamento" method="POST" action="/api/apadrinhamentos" class="form-card">
+            <form id="form-apadrinhamento" class="form-card">
                 <div class="form-group"><label for="id_animal_padrinho">Animal que deseja apadrinhar:</label><input type="number" id="id_animal_padrinho" name="id_animal" required placeholder="Insira o ID do Animal (Ex: 2)"></div>
                 <div class="form-group"><label for="valor_contribuicao">Valor de Contribuição Mensal (R$):</label><input type="text" id="valor_contribuicao" name="valor_contribuicao" required placeholder="Ex: 30.00"></div>
                 <button type="submit" id="btn-apadrinhar">Apadrinhar Animal</button>
+                <div class="form-feedback" id="feedback-apadrinhamento"></div>
             </form>
 
             <h3>5. Formulário de Cadastro de Eventos</h3>
-            <form id="form-eventos" method="POST" action="/api/eventos" class="form-card">
+            <form id="form-eventos" class="form-card">
                 <div class="form-group"><label for="nome_evento">Nome do Evento:</label><input type="text" id="nome_evento" name="nome" required maxlength="50"></div>
                 <div class="form-group"><label for="descricao_evento">Descrição (máx. 90 caracteres):</label><textarea id="descricao_evento" name="descricao" rows="3" maxlength="90"></textarea></div>
                 <div class="form-group"><label for="data_inicio">Data de Início:</label><input type="date" id="data_inicio" name="data_inicio" required></div>
                 <div class="form-group"><label for="data_fim">Data de Fim (Opcional):</label><input type="date" id="data_fim" name="data_fim"></div>
                 <button type="submit" id="btn-cadastrar-evento">Cadastrar Evento</button>
+                <div class="form-feedback" id="feedback-eventos"></div>
             </form>
 
         </div>
