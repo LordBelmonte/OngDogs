@@ -72,6 +72,34 @@ require_once $rootPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 
         }
     }
 
+    public static function autenticar( $email, $senha ) {
+        $tabela = "usuarios";
+        $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
+
+        $sql = "SELECT * FROM $tabela WHERE email = :email AND senha = :senha LIMIT 1";
+
+        $stm = $conexao->prepare( $sql );
+        $stm->bindValue(":email", $email );
+        $stm->bindValue(":senha", $senha );
+
+        $stm->execute();
+
+        if ( $stm->rowCount() > 0 ) {
+            $valores = $stm->fetch(PDO::FETCH_ASSOC);
+            return [
+                'erro' => false,
+                'mensagem' => "Autenticado com sucesso!",
+                'dados' => $valores
+            ];
+        } else {
+            return [
+                'erro' => true,
+                'mensagem' => "Credenciais inválidas",
+                'dados' => []
+            ];
+        }
+    }
+
     public static function buscarTodosUsuarios() {
 
         $tabela = "usuarios";

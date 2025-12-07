@@ -4,8 +4,10 @@ header('Content-Type: application/json; charset=utf-8');
 // Caminhos baseados no diretório atual
 $base = __DIR__ . "/../";
 
-include_once $base . "app/services/UsuariosService.php";
-include_once $base . "app/services/ParticipacoesService.php";
+// Incluir todos os services automaticamente (evita precisar listar manualmente)
+foreach (glob($base . "app/services/*.php") as $serviceFile) {
+    include_once $serviceFile;
+}
 include_once $base . "utils/util.php";
 
 // Captura a URL do PATH_INFO

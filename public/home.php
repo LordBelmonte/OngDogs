@@ -1,3 +1,12 @@
+<?php
+session_start();
+$user = null;
+if (isset($_SESSION['user_id'])) {
+    include_once __DIR__ . '/../app/models/Usuarios.php';
+    $res = Usuarios::buscarUsuarioPeloId($_SESSION['user_id']);
+    if (!$res['erro']) $user = $res['dados'];
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,7 +29,12 @@
             <a href="#contato">Contato</a>
             <a href="#formularios">Formulários</a>
             <a href="#depoimentos">Depoimentos</a>
-            <a href="admin.php">Admin</a>
+            <?php if ($user): ?>
+                <a href="admin.php">Admin</a>
+                <a id="logoutLink" href="login.php">Sair (<?php echo htmlspecialchars($user['nome'] ?? 'Conta'); ?>)</a>
+            <?php else: ?>
+                <a href="login.php">Entrar</a>
+            <?php endif; ?>
         </nav>
     </header>
 
