@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     iniciarFormAdocao();
     iniciarFormApadrinhamento();
     iniciarFormEventos();
+    iniciarCarouselEventos();
 });
 
 /* ============================================================
@@ -28,6 +29,80 @@ function iniciarSmoothScroll() {
             }
         });
     });
+}
+
+/* ============================================================
+CAROUSEL DE EVENTOS (HOME)
+============================================================ */
+async function iniciarCarouselEventos() {
+    const container = document.getElementById('carouselEventos');
+    const slidesEl = document.getElementById('carouselSlides');
+    if (!container || !slidesEl) return;
+
+    slidesEl.textContent = 'Carregando eventos...';
+
+    try {
+        const res = await fetch('../app/models/Eventos.php?action=listar');
+        const json = await res.json();
+        if (json.erro || !json.dados || json.dados.length === 0) {
+            slidesEl.innerHTML = '<div class="lista-empty">Nenhum evento para exibir</div>';
+            return;
+        }
+
+        const eventos = json.dados;
+        slidesEl.innerHTML = '';
+
+        eventos.forEach((ev, idx) => {
+            const slide = document.createElement('div');
+            slide.className = 'carousel-slide';
+            slide.style.display = (idx === 0) ? 'block' : 'none';
+
+            const img = document.createElement('img');
+            img.src = ev.imagem || 'imagens/banner_ong.jpeg';
+            img.alt = ev.nome || ev.titulo || 'Evento';
+            img.className = 'carousel-image';
+
+            const info = document.createElement('div');
+            info.className = 'carousel-info';
+            const title = document.createElement('h4');
+            title.textContent = ev.nome || ev.titulo || '';
+            const date = document.createElement('div');
+            const d = ev.data_inicio || ev.data_evento || '';
+            date.textContent = d ? (new Date(d)).toLocaleDateString('pt-BR') : '';
+            const desc = document.createElement('p');
+            desc.textContent = ev.descricao || '';
+
+            info.appendChild(title);
+            info.appendChild(date);
+            info.appendChild(desc);
+
+            slide.appendChild(img);
+            slide.appendChild(info);
+            slidesEl.appendChild(slide);
+        });
+
+        // controles
+        const prev = container.querySelector('.carousel-btn.prev');
+        const next = container.querySelector('.carousel-btn.next');
+        let current = 0;
+        const slideEls = slidesEl.querySelectorAll('.carousel-slide');
+
+        function show(n) {
+            slideEls.forEach((s, i) => s.style.display = (i === n) ? 'block' : 'none');
+            current = n;
+        }
+
+        if (prev) prev.addEventListener('click', () => show((current - 1 + slideEls.length) % slideEls.length));
+        if (next) next.addEventListener('click', () => show((current + 1) % slideEls.length));
+
+        // auto-advance a cada 6s
+        setInterval(() => {
+            show((current + 1) % slideEls.length);
+        }, 6000);
+
+    } catch (e) {
+        slidesEl.innerHTML = '<div class="lista-empty">Erro ao carregar eventos</div>';
+    }
 }
 
 /* ============================================================
@@ -330,6 +405,10 @@ function iniciarFormEventos() {
             if (!json.erro) {
                 mostrarFeedbackEventos("✓ Evento cadastrado com sucesso!", "success");
                 form.reset();
+                        // se existir função para recarregar lista (no perfil), chama
+                        if (typeof carregarEventos === 'function') {
+                            try { carregarEventos(); } catch(e) {}
+                        }
             } else {
                 mostrarFeedbackEventos("❌ " + json.mensagem, "error");
             }

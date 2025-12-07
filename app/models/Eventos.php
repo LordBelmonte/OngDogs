@@ -11,14 +11,16 @@ class Eventos {
     public static function inserir( $dados ) {
         $tabela = "eventos";
         $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
-        $sql = "INSERT INTO $tabela (titulo, data_evento, local) VALUES (:titulo, :data_evento, :local)";
+        $sql = "INSERT INTO $tabela (nome, descricao, data_inicio, data_fim) VALUES (:nome, :descricao, :data_inicio, :data_fim)";
         $stm = $conexao->prepare($sql);
-        $stm->bindValue(":titulo", $dados["titulo"]);
-        $stm->bindValue(":data_evento", $dados["data"] ?? $dados["data_evento"] ?? null);
-        $stm->bindValue(":local", $dados["local"] ?? null);
+        $stm->bindValue(":nome", $dados["nome"] ?? $dados["titulo"] ?? '');
+        $stm->bindValue(":descricao", $dados["descricao"] ?? null);
+        $stm->bindValue(":data_inicio", $dados["data_inicio"] ?? $dados["data"] ?? null);
+        $stm->bindValue(":data_fim", $dados["data_fim"] ?? null);
         $stm->execute();
         if ( $stm->rowCount() > 0 ) {
-            return [ 'erro' => false, 'mensagem' => 'Registro inserido com sucesso!', 'dados' => [] ];
+            $id = $conexao->lastInsertId();
+            return [ 'erro' => false, 'mensagem' => 'Registro inserido com sucesso!', 'dados' => ['id_evento' => $id] ];
         }
         return [ 'erro' => true, 'mensagem' => 'Erro ao inserir registro!', 'dados' => [] ];
     }
@@ -53,11 +55,12 @@ class Eventos {
     public static function alterar( $id_evento, $dados ) {
         $tabela = "eventos";
         $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
-        $sql = "UPDATE $tabela SET titulo = :titulo, data_evento = :data_evento, local = :local WHERE id_evento = :id_evento";
+        $sql = "UPDATE $tabela SET nome = :nome, descricao = :descricao, data_inicio = :data_inicio, data_fim = :data_fim WHERE id_evento = :id_evento";
         $stm = $conexao->prepare($sql);
-        $stm->bindValue(":titulo", $dados["titulo"]);
-        $stm->bindValue(":data_evento", $dados["data"] ?? $dados["data_evento"] ?? null);
-        $stm->bindValue(":local", $dados["local"] ?? null);
+        $stm->bindValue(":nome", $dados["nome"] ?? $dados["titulo"] ?? '');
+        $stm->bindValue(":descricao", $dados["descricao"] ?? null);
+        $stm->bindValue(":data_inicio", $dados["data_inicio"] ?? $dados["data"] ?? null);
+        $stm->bindValue(":data_fim", $dados["data_fim"] ?? null);
         $stm->bindValue(":id_evento", $id_evento);
         $stm->execute();
         if ( $stm->rowCount() > 0 ) {
@@ -74,6 +77,12 @@ class Eventos {
         $stm->bindValue(":id_evento", $id_evento);
         $stm->execute();
         if ( $stm->rowCount() > 0 ) {
+            // tenta remover imagem associada, se existir
+            $rootPath = dirname(dirname(dirname(__FILE__)));
+            $imgPathJpg = $rootPath . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'imagens' . DIRECTORY_SEPARATOR . 'eventos' . DIRECTORY_SEPARATOR . 'evento_' . $id_evento . '.jpg';
+            $imgPathPng = $rootPath . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'imagens' . DIRECTORY_SEPARATOR . 'eventos' . DIRECTORY_SEPARATOR . 'evento_' . $id_evento . '.png';
+            if (file_exists($imgPathJpg)) @unlink($imgPathJpg);
+            if (file_exists($imgPathPng)) @unlink($imgPathPng);
             return [ 'erro' => false, 'mensagem' => 'Dados deletados com sucesso!', 'dados' => [] ];
         }
         return [ 'erro' => true, 'mensagem' => 'Erro!', 'dados' => [] ];
@@ -85,17 +94,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     header('Content-Type: application/json');
     
     $input = json_decode(file_get_contents('php://input'), true);
-    
+
     if (!$input) {
         echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
         exit;
     }
-    
-    // Mapear campos do formulário para os campos do banco
-    $input['titulo'] = $input['nome'] ?? '';
-    $input['data_evento'] = $input['data_inicio'] ?? null;
-    
-    $resultado = Eventos::inserir($input);
+
+    // inserir usando campos esperados: nome, descricao, data_inicio, data_fim
+    $dados = [];
+    $dados['nome'] = $input['nome'] ?? $input['titulo'] ?? '';
+    $dados['descricao'] = $input['descricao'] ?? null;
+    $dados['data_inicio'] = $input['data_inicio'] ?? $input['data'] ?? null;
+    $dados['data_fim'] = $input['data_fim'] ?? null;
+
+    $resultado = Eventos::inserir($dados);
     echo json_encode($resultado);
     exit;
 }
@@ -105,12 +117,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     header('Content-Type: application/json');
     
     $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
-    $sql = "SELECT * FROM eventos ORDER BY data_evento DESC";
+    $sql = "SELECT * FROM eventos ORDER BY data_inicio DESC";
     $stm = $conexao->prepare($sql);
     $stm->execute();
     
     if ($stm->rowCount() > 0) {
         $dados = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+        // anexa caminho de imagem para cada evento (se existir arquivo em public/imagens/eventos/evento_<id>.(jpg|png))
+        foreach ($dados as &$ev) {
+            $id = $ev['id_evento'] ?? $ev['id'] ?? null;
+            $imgRel = 'imagens/banner_ong.jpeg';
+            if ($id) {
+                $jpg = $rootPath . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'imagens' . DIRECTORY_SEPARATOR . 'eventos' . DIRECTORY_SEPARATOR . 'evento_' . $id . '.jpg';
+                $png = $rootPath . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'imagens' . DIRECTORY_SEPARATOR . 'eventos' . DIRECTORY_SEPARATOR . 'evento_' . $id . '.png';
+                if (file_exists($jpg)) {
+                    $imgRel = 'imagens/eventos/evento_' . $id . '.jpg';
+                } elseif (file_exists($png)) {
+                    $imgRel = 'imagens/eventos/evento_' . $id . '.png';
+                }
+            }
+            $ev['imagem'] = $imgRel;
+        }
+
         echo json_encode(['erro' => false, 'mensagem' => 'Eventos encontrados', 'dados' => $dados]);
     } else {
         echo json_encode(['erro' => true, 'mensagem' => 'Nenhum evento encontrado', 'dados' => []]);

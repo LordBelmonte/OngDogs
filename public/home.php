@@ -164,15 +164,12 @@ if (isset($_SESSION['user_id'])) {
                 <div class="form-feedback" id="feedback-apadrinhamento"></div>
             </form>
 
-            <h3>5. Formulário de Cadastro de Eventos</h3>
-            <form id="form-eventos" class="form-card">
-                <div class="form-group"><label for="nome_evento">Nome do Evento:</label><input type="text" id="nome_evento" name="nome" required maxlength="50"></div>
-                <div class="form-group"><label for="descricao_evento">Descrição (máx. 90 caracteres):</label><textarea id="descricao_evento" name="descricao" rows="3" maxlength="90"></textarea></div>
-                <div class="form-group"><label for="data_inicio">Data de Início:</label><input type="date" id="data_inicio" name="data_inicio" required></div>
-                <div class="form-group"><label for="data_fim">Data de Fim (Opcional):</label><input type="date" id="data_fim" name="data_fim"></div>
-                <button type="submit" id="btn-cadastrar-evento">Cadastrar Evento</button>
-                <div class="form-feedback" id="feedback-eventos"></div>
-            </form>
+            <h3>Eventos</h3>
+            <div id="carouselEventos" class="carousel">
+                <button class="carousel-btn prev" aria-label="Anterior">‹</button>
+                <div class="carousel-slides" id="carouselSlides">Carregando eventos...</div>
+                <button class="carousel-btn next" aria-label="Próximo">›</button>
+            </div>
 
         </div>
     </section>

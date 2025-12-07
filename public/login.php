@@ -14,6 +14,7 @@ if (isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - OngDogs</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
 </head>
 <body>
     <header>
@@ -77,21 +78,9 @@ if (isset($_SESSION['user_id'])) {
             
             <!-- Abas de navegação -->
             <div class="tabs-container">
-                <button class="tab-btn active" data-tab="info">Informações</button>
                 <button class="tab-btn" data-tab="doacoes">Minhas Doações</button>
                 <button class="tab-btn" data-tab="apadrinhamentos">Apadrinhamentos</button>
                 <button class="tab-btn" data-tab="eventos">Eventos</button>
-            </div>
-
-            <!-- Aba: Informações -->
-            <div id="tab-info" class="tab-content active">
-                <div id="navLinks" class="nav-links">
-                    <a class="btn-link" href="adocoes.php">Adoções</a>
-                    <a class="btn-link" href="animais.php">Animais</a>
-                    <a class="btn-link" href="apadrinhamento.php">Apadrinhamento</a>
-                    <a class="btn-link" href="doacoes.php">Doações</a>
-                    <a class="btn-link" href="eventos.php">Eventos</a>
-                </div>
             </div>
 
             <!-- Aba: Doações -->
@@ -109,6 +98,14 @@ if (isset($_SESSION['user_id'])) {
             <!-- Aba: Eventos -->
             <div id="tab-eventos" class="tab-content">
                 <h3>Eventos</h3>
+                <form id="form-eventos" class="form-card">
+                    <div class="form-group"><label for="nome_evento">Nome do Evento:</label><input type="text" id="nome_evento" name="nome" required maxlength="50"></div>
+                    <div class="form-group"><label for="descricao_evento">Descrição (máx. 90 caracteres):</label><textarea id="descricao_evento" name="descricao" rows="3" maxlength="90"></textarea></div>
+                    <div class="form-group"><label for="data_inicio">Data de Início:</label><input type="date" id="data_inicio" name="data_inicio" required></div>
+                    <div class="form-group"><label for="data_fim">Data de Fim (Opcional):</label><input type="date" id="data_fim" name="data_fim"></div>
+                    <button type="submit" id="btn-cadastrar-evento">Cadastrar Evento</button>
+                    <div class="form-feedback" id="feedback-eventos"></div>
+                </form>
                 <div id="listaEventos" class="lista-container">Carregando...</div>
             </div>
         </div>
@@ -315,10 +312,11 @@ async function carregarEventos() {
         let html = '<table class="lista-table"><thead><tr><th>ID</th><th>Título</th><th>Data do Evento</th><th>Ação</th></tr></thead><tbody>';
         
         j.dados.forEach(e => {
+            const dataEv = e.data_inicio || e.data_evento || '';
             html += `<tr>
                 <td>${e.id_evento}</td>
-                <td>${e.titulo}</td>
-                <td>${new Date(e.data_evento).toLocaleDateString('pt-BR')}</td>
+                <td>${e.nome || e.titulo || ''}</td>
+                <td>${dataEv ? new Date(dataEv).toLocaleDateString('pt-BR') : ''}</td>
                 <td><button class="btn-delete" onclick="excluirEvento(${e.id_evento})">Excluir</button></td>
             </tr>`;
         });
