@@ -3,6 +3,6 @@
     const dbEndereco = "localhost";
     const dbNome = "ongdogs";
     const dbUsuario = "root";
-    const dbSenha = "";
+    const dbSenha = "SI1234";
 
 ?>
