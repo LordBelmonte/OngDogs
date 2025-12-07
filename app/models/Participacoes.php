@@ -157,4 +157,60 @@ require_once $rootPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 
     }
 }
 
+// Handlers: criar/listar/deletar via HTTP
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'criar') {
+    session_start();
+    header('Content-Type: application/json');
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    $input['id_usuario'] = $_SESSION['user_id'] ?? 0;
+    $input['id_evento'] = $input['id_evento'] ?? 0;
+    if (!$input['id_usuario'] || !$input['id_evento']) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Usuário ou evento inválido', 'dados' => []]);
+        exit;
+    }
+    $resultado = Participacoes::inserir($input);
+    echo json_encode($resultado);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'listar') {
+    session_start();
+    header('Content-Type: application/json');
+    $id_usuario = $_SESSION['user_id'] ?? 0;
+    if (!$id_usuario) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Usuário não autenticado', 'dados' => []]);
+        exit;
+    }
+    $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
+    $sql = "SELECT p.id_participacao, p.id_evento, e.nome, e.descricao, e.data_inicio, e.data_fim FROM participacoes p JOIN eventos e ON p.id_evento = e.id_evento WHERE p.id_usuario = :id_usuario ORDER BY e.data_inicio DESC";
+    $stm = $conexao->prepare($sql);
+    $stm->bindValue(":id_usuario", $id_usuario);
+    $stm->execute();
+    if ($stm->rowCount() > 0) {
+        $dados = $stm->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['erro' => false, 'mensagem' => 'Participações encontradas', 'dados' => $dados]);
+    } else {
+        echo json_encode(['erro' => true, 'mensagem' => 'Nenhuma participação encontrada', 'dados' => []]);
+    }
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'deletar') {
+    session_start();
+    header('Content-Type: application/json');
+    $id = $_GET['id'] ?? 0;
+    $id_usuario = $_SESSION['user_id'] ?? 0;
+    if (!$id || !$id_usuario) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+    $resultado = Participacoes::deletar($id);
+    echo json_encode($resultado);
+    exit;
+}
+
 ?>

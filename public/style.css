@@ -378,6 +378,8 @@ footer {
     margin-top: 20px;
 }
 
+.hidden { display: none !important; }
+
 .tab-content.active {
     display: block;
 }

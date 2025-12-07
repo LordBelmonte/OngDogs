@@ -132,37 +132,7 @@ if (isset($_SESSION['user_id'])) {
             </form>
             <br>
 
-            <h3>2. Formulário de Doação</h3>
-            <form id="form-doacao" class="form-card">
-                <div class="form-group"><label for="valor">Valor da Doação (R$):</label><input type="text" id="valor" name="valor" required placeholder="Ex: 50.00"></div>
-                <div class="form-group">
-                    <label for="forma_paga">Forma de Pagamento:</label>
-                    <select id="forma_paga" name="forma_paga" required>
-                        <option value="">Selecione</option>
-                        <option value="PIX">PIX</option>
-                        <option value="Cartão">Cartão de Crédito</option>
-                        <option value="Boleto">Boleto</option>
-                    </select>
-                </div>
-                <button type="submit" id="btn-doar">Doar Agora</button>
-                <div class="form-feedback" id="feedback-doacao"></div>
-            </form>
-
-            <h3>3. Formulário de Solicitação de Adoção</h3>
-            <form id="form-adocao" class="form-card">
-                <div class="form-group"><label for="id_animal">ID do Animal Desejado:</label><input type="number" id="id_animal" name="id_animal" required placeholder="Insira o ID (Ex: 1 para Rex)"></div>
-                <div class="form-group"><label for="motivo_adocao">Por que deseja adotar?</label><textarea id="motivo_adocao" name="motivo_adocao" rows="4" required></textarea></div>
-                <button type="submit" id="btn-adocao">Solicitar Adoção</button>
-                <div class="form-feedback" id="feedback-adocao"></div>
-            </form>
-
-            <h3>4. Formulário de Apadrinhamento</h3>
-            <form id="form-apadrinhamento" class="form-card">
-                <div class="form-group"><label for="id_animal_padrinho">Animal que deseja apadrinhar:</label><input type="number" id="id_animal_padrinho" name="id_animal" required placeholder="Insira o ID do Animal (Ex: 2)"></div>
-                <div class="form-group"><label for="valor_contribuicao">Valor de Contribuição Mensal (R$):</label><input type="text" id="valor_contribuicao" name="valor_contribuicao" required placeholder="Ex: 30.00"></div>
-                <button type="submit" id="btn-apadrinhar">Apadrinhar Animal</button>
-                <div class="form-feedback" id="feedback-apadrinhamento"></div>
-            </form>
+            <!-- Formulários movidos para admin.php. Apenas cadastro de usuário permanece aqui. -->
 
             <h3>Eventos</h3>
             <div id="carouselEventos" class="carousel">

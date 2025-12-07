@@ -156,58 +156,175 @@ if (isset($_SESSION['user_id'])) {
 
     <section>
         <h1>Painel Administrativo</h1>
-        <button class="btn-refresh" onclick="carregarUsuarios()">🔄 Atualizar Lista</button>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Telefone</th>
-                    <th>CPF</th>
-                    <th>Tipo</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+        <div class="tabs-container" style="margin-bottom:18px;">
+            <button class="tab-btn active" data-tab="usuarios">Usuários</button>
+            <button class="tab-btn" data-tab="eventos">Eventos</button>
+            <button class="tab-btn" data-tab="doacoes">Doações</button>
+            <button class="tab-btn" data-tab="apadrinhamentos">Apadrinhamentos</button>
+            <button class="tab-btn" data-tab="adocoes">Adoções</button>
+            <button class="tab-btn" data-tab="formularios">Formulários</button>
+        </div>
 
-            <tbody id="tabela-usuarios">
-                <!-- preenchido via admin.js -->
-            </tbody>
-        </table>
+        <!-- Aba: Usuários -->
+        <div id="tab-usuarios" class="tab-panel">
+            <button class="btn-refresh" onclick="carregarUsuarios()">🔄 Atualizar Lista</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Telefone</th>
+                        <th>CPF</th>
+                        <th>Tipo</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-usuarios">
+                    <!-- preenchido via admin.js -->
+                </tbody>
+            </table>
 
-        <!-- Formulário de edição -->
-        <div id="edit-form" class="hidden">
-            <h3>Editar Usuário</h3>
+            <!-- Formulário de edição Usuário -->
+            <div id="edit-form" class="hidden">
+                <h3>Editar Usuário</h3>
+                <label>ID:</label>
+                <input type="text" id="edit-id" readonly><br><br>
+                <label>Nome:</label>
+                <input type="text" id="edit-nome"><br><br>
+                <label>Email:</label>
+                <input type="email" id="edit-email"><br><br>
+                <label for="edit-senha">Senha (opcional):</label>
+                <input type="password" id="edit-senha" placeholder="Deixe vazio para não alterar">
+                <label>Telefone:</label>
+                <input type="text" id="edit-telefone"><br><br>
+                <label>CPF:</label>
+                <input type="text" id="edit-cpf"><br><br>
+                <label>Tipo usuário:</label>
+                <input type="text" id="edit-tipo"><br><br>
+                <button class="btn-edit" onclick="salvarEdicao()">Salvar</button>
+                <button onclick="cancelarEdicao()">Cancelar</button>
+            </div>
+        </div>
 
-            <label>ID:</label>
-            <input type="text" id="edit-id" readonly><br><br>
+        <!-- Aba: Doações -->
+        <div id="tab-doacoes" class="tab-panel hidden">
+            <button class="btn-refresh" onclick="carregarDoacoesAdmin()">🔄 Atualizar Doações</button>
+            <table style="margin-top:12px;">
+                <thead>
+                    <tr><th>ID</th><th>Usuário</th><th>Valor</th><th>Descrição</th><th>Data</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="tabela-doacoes"></tbody>
+            </table>
+            <div id="edit-doacao-form" class="hidden" style="margin-top:12px;">
+                <h3>Editar Doação</h3>
+                <label>ID:</label><input id="edit-doacao-id" readonly><br><br>
+                <label>Usuário ID:</label><input id="edit-doacao-usuario"><br><br>
+                <label>Valor:</label><input id="edit-doacao-valor"><br><br>
+                <label>Descrição:</label><input id="edit-doacao-descricao"><br><br>
+                <label>Data:</label><input id="edit-doacao-data" type="datetime-local"><br><br>
+                <button class="btn-edit" onclick="salvarEdicaoDoacao()">Salvar</button>
+                <button onclick="cancelarEdicaoDoacao()">Cancelar</button>
+            </div>
+        </div>
 
-            <label>Nome:</label>
-            <input type="text" id="edit-nome"><br><br>
+        <!-- Aba: Apadrinhamentos -->
+        <div id="tab-apadrinhamentos" class="tab-panel hidden">
+            <button class="btn-refresh" onclick="carregarApadrinhamentosAdmin()">🔄 Atualizar Apadrinhamentos</button>
+            <table style="margin-top:12px;">
+                <thead>
+                    <tr><th>ID</th><th>Usuário</th><th>Animal ID</th><th>Valor Mensal</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="tabela-apadrinhamentos"></tbody>
+            </table>
+            <div id="edit-apadrinhamento-form" class="hidden" style="margin-top:12px;">
+                <h3>Editar Apadrinhamento</h3>
+                <label>ID:</label><input id="edit-apadrinhamento-id" readonly><br><br>
+                <label>Usuário ID:</label><input id="edit-apadrinhamento-usuario"><br><br>
+                <label>Animal ID:</label><input id="edit-apadrinhamento-animal"><br><br>
+                <label>Valor Mensal:</label><input id="edit-apadrinhamento-valor"><br><br>
+                <button class="btn-edit" onclick="salvarEdicaoApadrinhamento()">Salvar</button>
+                <button onclick="cancelarEdicaoApadrinhamento()">Cancelar</button>
+            </div>
+        </div>
 
-            <label>Email:</label>
-            <input type="email" id="edit-email"><br><br>
+        <!-- Aba: Adoções -->
+        <div id="tab-adocoes" class="tab-panel hidden">
+            <button class="btn-refresh" onclick="carregarAdocoesAdmin()">🔄 Atualizar Adoções</button>
+            <table style="margin-top:12px;">
+                <thead>
+                    <tr><th>ID</th><th>Usuário</th><th>Animal ID</th><th>Data Adoção</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="tabela-adocoes"></tbody>
+            </table>
+            <div id="edit-adocao-form" class="hidden" style="margin-top:12px;">
+                <h3>Editar Adoção</h3>
+                <label>ID:</label><input id="edit-adocao-id" readonly><br><br>
+                <label>Usuário ID:</label><input id="edit-adocao-usuario"><br><br>
+                <label>Animal ID:</label><input id="edit-adocao-animal"><br><br>
+                <label>Data:</label><input id="edit-adocao-data" type="datetime-local"><br><br>
+                <button class="btn-edit" onclick="salvarEdicaoAdocao()">Salvar</button>
+                <button onclick="cancelarEdicaoAdocao()">Cancelar</button>
+            </div>
+        </div>
 
+        <!-- Aba: Eventos -->
+        <div id="tab-eventos-admin" class="tab-panel hidden">
+            <button class="btn-refresh" onclick="carregarEventosAdmin()">🔄 Atualizar Eventos</button>
+
+            <h3>Criar Novo Evento</h3>
+            <form id="form-eventos-admin" class="form-card">
+                <div class="form-group"><label for="admin_nome_evento">Nome do Evento:</label><input type="text" id="admin_nome_evento" name="nome" required maxlength="50"></div>
+                <div class="form-group"><label for="admin_descricao_evento">Descrição (máx. 90 caracteres):</label><textarea id="admin_descricao_evento" name="descricao" rows="3" maxlength="90"></textarea></div>
+                <div class="form-group"><label for="admin_data_inicio">Data de Início:</label><input type="date" id="admin_data_inicio" name="data_inicio" required></div>
+                <div class="form-group"><label for="admin_data_fim">Data de Fim (Opcional):</label><input type="date" id="admin_data_fim" name="data_fim"></div>
+                <button type="submit" id="btn-criar-evento" class="btn-primary">Cadastrar Evento</button>
+                <div class="form-feedback" id="feedback-eventos-admin"></div>
+            </form>
+
+            <table style="margin-top:18px;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Data Início</th>
+                        <th>Data Fim</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-eventos">
+                    <!-- preenchido via admin.js -->
+                </tbody>
+            </table>
+
+            <!-- Formulário de edição Evento -->
+            <div id="edit-evento-form" class="hidden">
+                <h3>Editar Evento</h3>
+                <label>ID:</label>
+                <input type="text" id="edit-evento-id" readonly><br><br>
+                <label>Nome:</label>
+                <input type="text" id="edit-evento-nome"><br><br>
+                <label>Descrição:</label>
+                <textarea id="edit-evento-descricao" rows="3"></textarea><br><br>
+                <label>Data Início:</label>
+                <input type="date" id="edit-evento-data_inicio"><br><br>
+                <label>Data Fim:</label>
+                <input type="date" id="edit-evento-data_fim"><br><br>
+                <button class="btn-edit" onclick="salvarEdicaoEvento()">Salvar</button>
+                <button onclick="cancelarEdicaoEvento()">Cancelar</button>
+            </div>
+        </div>
         
-            <label for="edit-senha">Senha (opcional):</label>
-            <input type="password" id="edit-senha" placeholder="Deixe vazio para não alterar">
-
-
-            <label>Telefone:</label>
-            <input type="text" id="edit-telefone"><br><br>
-
-            <label>CPF:</label>
-            <input type="text" id="edit-cpf"><br><br>
-
-            <label>Tipo usuário:</label>
-            <input type="text" id="edit-tipo"><br><br>
-
-            <button class="btn-edit" onclick="salvarEdicao()">Salvar</button>
-            <button onclick="cancelarEdicao()">Cancelar</button>
+        <!-- Aba: Formulários (migrados para perfil de usuário) -->
+        <div id="tab-formularios" class="tab-panel hidden">
+            <h3>Formulários</h3>
+            <p>Os formulários de <strong>Doação</strong>, <strong>Adoção</strong> e <strong>Apadrinhamento</strong> foram movidos para o perfil do usuário.</p>
+            <p>Para criar uma nova doação, solicitar adoção ou apadrinhar um animal, acesse o perfil do usuário em <a href="login.php">Minha Conta</a>.</p>
         </div>
     </section>
 
+    <script src="script.js"></script>
     <script src="admin.js"></script>
 
 </body>

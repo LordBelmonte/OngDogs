@@ -118,5 +118,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     exit;
 }
 
+// Listar todas adoções (admin)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'listar_todos') {
+    header('Content-Type: application/json');
+    $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
+    $sql = "SELECT * FROM adocoes ORDER BY data_adocao DESC";
+    $stm = $conexao->prepare($sql);
+    $stm->execute();
+    if ($stm->rowCount() > 0) {
+        $dados = $stm->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['erro' => false, 'mensagem' => 'Adoções encontradas', 'dados' => $dados]);
+    } else {
+        echo json_encode(['erro' => true, 'mensagem' => 'Nenhuma adoção encontrada', 'dados' => []]);
+    }
+    exit;
+}
+
+// Alterar adoção (admin)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'alterar') {
+    header('Content-Type: application/json');
+    $id = $_GET['id'] ?? 0;
+    if (!$id) { echo json_encode(['erro'=>true,'mensagem'=>'ID inválido','dados'=>[]]); exit; }
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) { echo json_encode(['erro'=>true,'mensagem'=>'Dados inválidos','dados'=>[]]); exit; }
+    $dados = [];
+    $dados['id_usuario'] = $input['id_usuario'] ?? 0;
+    $dados['id_animal'] = $input['id_animal'] ?? null;
+    $dados['data_adocao'] = $input['data_adocao'] ?? null;
+    $resultado = Adocoes::alterar($id, $dados);
+    echo json_encode($resultado);
+    exit;
+}
+
 ?>
 

@@ -80,33 +80,68 @@ if (isset($_SESSION['user_id'])) {
             <div class="tabs-container">
                 <button class="tab-btn" data-tab="doacoes">Minhas Doações</button>
                 <button class="tab-btn" data-tab="apadrinhamentos">Apadrinhamentos</button>
+                <button class="tab-btn" data-tab="adocoes">Adoções</button>
                 <button class="tab-btn" data-tab="eventos">Eventos</button>
             </div>
 
             <!-- Aba: Doações -->
             <div id="tab-doacoes" class="tab-content">
                 <h3>Minhas Doações</h3>
+                <div style="margin-bottom:12px;">
+                    <button onclick="document.getElementById('form-doacao').classList.toggle('hidden')">+ Nova Doação</button>
+                </div>
+                <form id="form-doacao" class="form-card hidden">
+                    <div class="form-group"><label for="valor">Valor da Doação (R$):</label><input type="text" id="valor" name="valor" required placeholder="Ex: 50.00"></div>
+                    <div class="form-group"><label for="forma_paga">Forma de Pagamento:</label>
+                        <select id="forma_paga" name="forma_paga" required>
+                            <option value="">Selecione</option>
+                            <option value="PIX">PIX</option>
+                            <option value="Cartão">Cartão de Crédito</option>
+                            <option value="Boleto">Boleto</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="btn-doar">Doar Agora</button>
+                    <div class="form-feedback" id="feedback-doacao"></div>
+                </form>
                 <div id="listaDoacoes" class="lista-container">Carregando...</div>
             </div>
 
             <!-- Aba: Apadrinhamentos -->
             <div id="tab-apadrinhamentos" class="tab-content">
                 <h3>Meus Apadrinhamentos</h3>
+                <div style="margin-bottom:12px;">
+                    <button onclick="document.getElementById('form-apadrinhamento').classList.toggle('hidden')">+ Novo Apadrinhamento</button>
+                </div>
+                <form id="form-apadrinhamento" class="form-card hidden">
+                    <div class="form-group"><label for="id_animal_padrinho">Animal que deseja apadrinhar:</label><input type="number" id="id_animal_padrinho" name="id_animal" required placeholder="Insira o ID do Animal (Ex: 2)"></div>
+                    <div class="form-group"><label for="valor_contribuicao">Valor de Contribuição Mensal (R$):</label><input type="text" id="valor_contribuicao" name="valor_contribuicao" required placeholder="Ex: 30.00"></div>
+                    <button type="submit" id="btn-apadrinhar">Apadrinhar Animal</button>
+                    <div class="form-feedback" id="feedback-apadrinhamento"></div>
+                </form>
                 <div id="listaApadrinhamentos" class="lista-container">Carregando...</div>
+            </div>
+
+            <!-- Aba: Adoções -->
+            <div id="tab-adocoes" class="tab-content">
+                <h3>Solicitação de Adoção</h3>
+                <div style="margin-bottom:12px;">
+                    <button onclick="document.getElementById('form-adocao').classList.toggle('hidden')">+ Solicitar Adoção</button>
+                </div>
+                <form id="form-adocao" class="form-card hidden">
+                    <div class="form-group"><label for="id_animal">ID do Animal Desejado:</label><input type="number" id="id_animal" name="id_animal" required placeholder="Insira o ID (Ex: 1 para Rex)"></div>
+                    <div class="form-group"><label for="motivo_adocao">Por que deseja adotar?</label><textarea id="motivo_adocao" name="motivo_adocao" rows="4" required></textarea></div>
+                    <button type="submit" id="btn-adocao">Solicitar Adoção</button>
+                    <div class="form-feedback" id="feedback-adocao"></div>
+                </form>
+                <div id="listaAdocoes" class="lista-container">Carregando...</div>
             </div>
 
             <!-- Aba: Eventos -->
             <div id="tab-eventos" class="tab-content">
                 <h3>Eventos</h3>
-                <form id="form-eventos" class="form-card">
-                    <div class="form-group"><label for="nome_evento">Nome do Evento:</label><input type="text" id="nome_evento" name="nome" required maxlength="50"></div>
-                    <div class="form-group"><label for="descricao_evento">Descrição (máx. 90 caracteres):</label><textarea id="descricao_evento" name="descricao" rows="3" maxlength="90"></textarea></div>
-                    <div class="form-group"><label for="data_inicio">Data de Início:</label><input type="date" id="data_inicio" name="data_inicio" required></div>
-                    <div class="form-group"><label for="data_fim">Data de Fim (Opcional):</label><input type="date" id="data_fim" name="data_fim"></div>
-                    <button type="submit" id="btn-cadastrar-evento">Cadastrar Evento</button>
-                    <div class="form-feedback" id="feedback-eventos"></div>
-                </form>
                 <div id="listaEventos" class="lista-container">Carregando...</div>
+                <h4 style="margin-top:18px">Minhas Participações</h4>
+                <div id="listaParticipacoes" class="lista-container">Carregando...</div>
             </div>
         </div>
     </div>
@@ -214,7 +249,9 @@ async function showProfile(){
         // Carregar listas de dados
         carregarDoacoes();
         carregarApadrinhamentos();
+        carregarAdocoes();
         carregarEventos();
+        carregarParticipacoes();
         
         // Configurar abas
         configurarAbas();
@@ -255,12 +292,13 @@ async function carregarDoacoes() {
         let html = '<table class="lista-table"><thead><tr><th>ID</th><th>Valor (R$)</th><th>Forma de Pagamento</th><th>Data</th><th>Ação</th></tr></thead><tbody>';
         
         j.dados.forEach(d => {
+            const valorFmt = (d.valor !== null && d.valor !== undefined && d.valor !== '') ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(d.valor)) : '-';
             html += `<tr>
-                <td>${d.id_doacao}</td>
-                <td>R$ ${parseFloat(d.valor).toFixed(2)}</td>
+                <td>${d.id_doacoes}</td>
+                <td>${valorFmt}</td>
                 <td>${d.forma_paga || '-'}</td>
-                <td>${new Date(d.data_doacao).toLocaleDateString('pt-BR')}</td>
-                <td><button class="btn-delete" onclick="excluirDoacao(${d.id_doacao})">Excluir</button></td>
+                <td>${d.data_doacao ? new Date(d.data_doacao).toLocaleDateString('pt-BR') : ''}</td>
+                <td><button class="btn-delete" onclick="excluirDoacao(${d.id_doacoes})">Excluir</button></td>
             </tr>`;
         });
         
@@ -299,6 +337,50 @@ async function carregarApadrinhamentos() {
     }
 }
 
+async function carregarAdocoes() {
+    try {
+        const { res, j } = await fetchJson('../app/models/Adocoes.php?action=listar');
+        const div = document.getElementById('listaAdocoes');
+
+        if (j.erro || !j.dados || j.dados.length === 0) {
+            div.innerHTML = '<div class="lista-empty">Nenhuma solicitação de adoção registrada</div>';
+            return;
+        }
+
+        let html = '<table class="lista-table"><thead><tr><th>ID</th><th>Animal ID</th><th>Motivo</th><th>Data</th><th>Ação</th></tr></thead><tbody>';
+
+        j.dados.forEach(d => {
+            html += `<tr>
+                <td>${d.id_adocao}</td>
+                <td>${d.animal_id || d.id_animal || ''}</td>
+                <td>${d.motivo_adocao || d.motivo || '-'}</td>
+                <td>${d.data_adocao ? new Date(d.data_adocao).toLocaleDateString('pt-BR') : ''}</td>
+                <td><button class="btn-delete" onclick="excluirAdocao(${d.id_adocao})">Excluir</button></td>
+            </tr>`;
+        });
+
+        html += '</tbody></table>';
+        div.innerHTML = html;
+    } catch (e) {
+        document.getElementById('listaAdocoes').innerHTML = '<div class="lista-empty">Erro ao carregar adoções</div>';
+    }
+}
+
+async function excluirAdocao(id) {
+    if (!confirm('Tem certeza que deseja cancelar esta solicitação de adoção?')) return;
+    try {
+        const { res, j } = await fetchJson(`../app/models/Adocoes.php?action=deletar&id=${id}`, { method: 'POST' });
+        if (!j.erro) {
+            alert('Solicitação cancelada com sucesso!');
+            carregarAdocoes();
+        } else {
+            alert('Erro: ' + j.mensagem);
+        }
+    } catch (e) {
+        alert('Erro ao excluir solicitação');
+    }
+}
+
 async function carregarEventos() {
     try {
         const { res, j } = await fetchJson('../app/models/Eventos.php?action=listar');
@@ -311,13 +393,24 @@ async function carregarEventos() {
         
         let html = '<table class="lista-table"><thead><tr><th>ID</th><th>Título</th><th>Data do Evento</th><th>Ação</th></tr></thead><tbody>';
         
+        // obter participações do usuário para marcar presença
+        let participacoes = [];
+        try {
+            const p = await fetchJson('../app/models/Participacoes.php?action=listar');
+            if (!p.j.erro && Array.isArray(p.j.dados)) participacoes = p.j.dados;
+        } catch (err) {
+            // ignora
+        }
+
         j.dados.forEach(e => {
             const dataEv = e.data_inicio || e.data_evento || '';
+            const part = participacoes.find(p => Number(p.id_evento) === Number(e.id_evento));
+            const actionBtn = part ? `<button class="btn-delete" onclick="cancelarParticipacao(${part.id_participacao})">Cancelar participação</button>` : `<button class="btn-primary" onclick="participarEvento(${e.id_evento})">Participar</button>`;
             html += `<tr>
                 <td>${e.id_evento}</td>
                 <td>${e.nome || e.titulo || ''}</td>
                 <td>${dataEv ? new Date(dataEv).toLocaleDateString('pt-BR') : ''}</td>
-                <td><button class="btn-delete" onclick="excluirEvento(${e.id_evento})">Excluir</button></td>
+                <td>${actionBtn}</td>
             </tr>`;
         });
         
@@ -373,6 +466,64 @@ async function excluirEvento(id) {
         }
     } catch (e) {
         alert('Erro ao excluir evento');
+    }
+}
+
+async function participarEvento(id_evento) {
+    try {
+        const resp = await fetch('../app/models/Participacoes.php?action=criar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_evento })
+        });
+        const json = await resp.json();
+        if (!json.erro) {
+            alert('Participação registrada com sucesso');
+        } else {
+            alert('Erro: ' + (json.mensagem||''));
+        }
+        carregarEventos();
+        carregarParticipacoes();
+    } catch (e) {
+        alert('Erro ao participar do evento');
+    }
+}
+
+async function cancelarParticipacao(id_participacao) {
+    if (!confirm('Deseja cancelar sua participação?')) return;
+    try {
+        const resp = await fetch(`../app/models/Participacoes.php?action=deletar&id=${id_participacao}`, { method: 'POST' });
+        const json = await resp.json();
+        if (!json.erro) alert('Participação cancelada'); else alert('Erro: ' + (json.mensagem||''));
+        carregarEventos();
+        carregarParticipacoes();
+    } catch (e) {
+        alert('Erro ao cancelar participação');
+    }
+}
+
+async function carregarParticipacoes() {
+    try {
+        const { res, j } = await fetchJson('../app/models/Participacoes.php?action=listar');
+        const div = document.getElementById('listaParticipacoes');
+        if (j.erro || !j.dados || j.dados.length === 0) {
+            if (div) div.innerHTML = '<div class="lista-empty">Nenhuma participação registrada</div>';
+            return;
+        }
+        let html = '<table class="lista-table"><thead><tr><th>ID</th><th>Evento</th><th>Data</th><th>Ação</th></tr></thead><tbody>';
+        j.dados.forEach(p => {
+            html += `<tr>
+                <td>${p.id_participacao}</td>
+                <td>${p.nome || ''}</td>
+                <td>${p.data_inicio ? new Date(p.data_inicio).toLocaleDateString('pt-BR') : ''}</td>
+                <td><button class="btn-delete" onclick="cancelarParticipacao(${p.id_participacao})">Cancelar</button></td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        if (div) div.innerHTML = html;
+    } catch (e) {
+        const div = document.getElementById('listaParticipacoes');
+        if (div) div.innerHTML = '<div class="lista-empty">Erro ao carregar participações</div>';
     }
 }
 

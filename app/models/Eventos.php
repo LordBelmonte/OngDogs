@@ -164,6 +164,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     exit;
 }
 
+// Processar ALTERAR requests (POST com action=alterar&id=)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'alterar') {
+    header('Content-Type: application/json');
+
+    $id = $_GET['id'] ?? 0;
+    if (!$id) {
+        echo json_encode(['erro' => true, 'mensagem' => 'ID inválido', 'dados' => []]);
+        exit;
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!$input) {
+        echo json_encode(['erro' => true, 'mensagem' => 'Dados inválidos', 'dados' => []]);
+        exit;
+    }
+
+    $dados = [];
+    $dados['nome'] = $input['nome'] ?? $input['titulo'] ?? '';
+    $dados['descricao'] = $input['descricao'] ?? null;
+    $dados['data_inicio'] = $input['data_inicio'] ?? $input['data'] ?? null;
+    $dados['data_fim'] = $input['data_fim'] ?? null;
+
+    $resultado = Eventos::alterar($id, $dados);
+    echo json_encode($resultado);
+    exit;
+}
+
 ?>
 
 
