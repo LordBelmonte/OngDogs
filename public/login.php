@@ -20,13 +20,15 @@ if (isset($_SESSION['user_id'])) {
         <img src="imagens/logo_ong.png" alt="Logo Instituto Eu Sou Bicho" class="logo">
         <nav>
             <a href="home.php">Home</a>
-            <a href="#animais">Animais</a>
-            <a href="#como-ajudar">Como Ajudar</a>
-            <a href="#missao">Missão</a>
-            <a href="#contato">Contato</a>
-            <a href="#formularios">Formulários</a>
+            <a href="home.php#como-ajudar">Como Ajudar</a>
+            <a href="home.php#animais">Animais</a>
+            <a href="home.php#missao">Missão</a>
+            <a href="home.php#contato">Contato</a>
+            <a href="home.php#formularios">Formulários</a>
+            <a href="home.php#depoimentos">Depoimentos</a>
             <?php if ($user): ?>
                 <a href="admin.php">Admin</a>
+                <a id="logoutLink" href="login.php">Sair (<?php echo htmlspecialchars($user['nome'] ?? 'Conta'); ?>)</a>
             <?php else: ?>
                 <a href="login.php">Entrar</a>
             <?php endif; ?>
