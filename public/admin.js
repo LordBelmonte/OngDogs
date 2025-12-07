@@ -1,4 +1,6 @@
-const API_URL = "http://localhost/OngDogs/public/router.php/api/usuarios";
+// Use URL relativa para manter mesma origem e evitar CORS quando a página
+// for servida em outra porta (ex: php -S localhost:8000)
+const API_URL = "router.php/api/usuarios";
 
 // utilitário para pegar campo com fallback entre várias chaves possíveis
 function pegarCampo(obj, possiveis) {

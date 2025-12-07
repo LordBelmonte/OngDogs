@@ -97,6 +97,39 @@ if (isset($_SESSION['user_id'])) {
             display: none;
         }
 
+        /* Modal/backdrop para formulários de edição */
+        #modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.45);
+            z-index: 900;
+        }
+
+        /* Forms de edição exibidos como overlay */
+        #edit-doacao-form, #edit-apadrinhamento-form, #edit-adocao-form, #edit-evento-form, #edit-form {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: #fff;
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+            max-width: 640px;
+            width: calc(100% - 40px);
+        }
+
+        /* versão 'minimal' para inputs (mais compacta)
+           será aplicada adicionando a classe .form-minimal ao form */
+        .form-minimal input, .form-minimal textarea {
+            padding: 6px;
+            font-size: 14px;
+        }
+
         #edit-form {
             background: #fff;
             padding: 20px;
@@ -210,7 +243,10 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- Aba: Doações -->
         <div id="tab-doacoes" class="tab-panel hidden">
-            <button class="btn-refresh" onclick="carregarDoacoesAdmin()">🔄 Atualizar Doações</button>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <button class="btn-refresh" onclick="carregarDoacoesAdmin()">🔄 Atualizar Doações</button>
+                <div id="total-doacoes" style="font-weight:700; color:#2E8B57;">Total doado: R$ 0,00</div>
+            </div>
             <table style="margin-top:12px;">
                 <thead>
                     <tr><th>ID</th><th>Usuário</th><th>Valor</th><th>Descrição</th><th>Data</th><th>Ações</th></tr>
@@ -323,6 +359,9 @@ if (isset($_SESSION['user_id'])) {
             <p>Para criar uma nova doação, solicitar adoção ou apadrinhar um animal, acesse o perfil do usuário em <a href="login.php">Minha Conta</a>.</p>
         </div>
     </section>
+
+    <!-- backdrop usado para modals de edição -->
+    <div id="modal-backdrop" class="hidden"></div>
 
     <script src="script.js"></script>
     <script src="admin.js"></script>

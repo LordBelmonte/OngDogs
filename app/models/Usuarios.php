@@ -131,19 +131,35 @@ require_once $rootPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 
     public static function alterar( $id_usuario, $dados ) {
         $tabela = "usuarios";
         $conexao = new PDO( dbDrive . ":host=" . dbEndereco . ";dbname=" . dbNome, dbUsuario, dbSenha );
+        // Monta a query dinamicamente para permitir campos opcionais (ex: senha pode não ser enviada)
+        $fields = [];
+        $params = [];
 
-        $sql = "UPDATE $tabela SET nome = :nome, email = :email, senha = :senha, telefone = :telefone, cpf = :cpf, tipo_usuario = :tipo_usuario  WHERE id_usuario = :id_usuario";
+        if (isset($dados["nome"])) { $fields[] = "nome = :nome"; $params[":nome"] = $dados["nome"]; }
+        if (isset($dados["email"])) { $fields[] = "email = :email"; $params[":email"] = $dados["email"]; }
+        // senha é opcional: só atualiza se fornecida e não vazia
+        if (isset($dados["senha"]) && $dados["senha"] !== "") { $fields[] = "senha = :senha"; $params[":senha"] = $dados["senha"]; }
+        if (isset($dados["telefone"])) { $fields[] = "telefone = :telefone"; $params[":telefone"] = $dados["telefone"]; }
+        if (isset($dados["cpf"])) { $fields[] = "cpf = :cpf"; $params[":cpf"] = $dados["cpf"]; }
+        if (isset($dados["tipo_usuario"])) { $fields[] = "tipo_usuario = :tipo_usuario"; $params[":tipo_usuario"] = $dados["tipo_usuario"]; }
 
-        //Trocar o apelido pela informação
+        if (count($fields) === 0) {
+            return [
+                'erro' => true,
+                'mensagem' => 'Nenhum campo para alterar.',
+                'dados' => []
+            ];
+        }
+
+        $sql = "UPDATE $tabela SET " . implode(", ", $fields) . " WHERE id_usuario = :id_usuario";
+
         $stm = $conexao->prepare($sql);
-        $stm->bindValue(":nome", $dados["nome"]);
-        $stm->bindValue(":email", $dados["email"]);
-        $stm->bindValue(":senha", $dados["senha"]);
-        $stm->bindValue(":telefone", $dados["telefone"]);
-        $stm->bindValue(":cpf", $dados["cpf"]);
-        $stm->bindValue(":tipo_usuario", $dados["tipo_usuario"]);
+        // vincula parâmetros dinamicamente
+        foreach ($params as $k => $v) {
+            $stm->bindValue($k, $v);
+        }
         $stm->bindValue(":id_usuario", $id_usuario);
-        
+
         $stm->execute();
 
         if ( $stm->rowCount() > 0 ) {

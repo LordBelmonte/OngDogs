@@ -4,12 +4,13 @@ console.log("JS CARREGADO!");
 INICIALIZAÇÃO
 ============================================================ */
 document.addEventListener("DOMContentLoaded", function () {
+    // Sempre iniciar smooth scroll e carousel quando existirem os elementos
     iniciarSmoothScroll();
-    iniciarFormCadastro();
-    iniciarFormDoacao();
-    iniciarFormAdocao();
-    iniciarFormApadrinhamento();
-    iniciarFormEventos();
+    if (document.getElementById('form-cadastro')) iniciarFormCadastro();
+    if (document.getElementById('form-doacao')) iniciarFormDoacao();
+    if (document.getElementById('form-adocao')) iniciarFormAdocao();
+    if (document.getElementById('form-apadrinhamento')) iniciarFormApadrinhamento();
+    if (document.getElementById('form-eventos')) iniciarFormEventos();
     iniciarCarouselEventos();
 });
 
