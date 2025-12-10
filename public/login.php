@@ -24,8 +24,8 @@ if (isset($_SESSION['user_id'])) {
             <a href="home.php#como-ajudar">Como Ajudar</a>
             <a href="home.php#animais">Animais</a>
             <a href="home.php#missao">Missão</a>
-            <a href="home.php#contato">Contato</a>
             <a href="home.php#formularios">Formulários</a>
+            <a href="home.php#contato">Contato</a>            
             <a href="home.php#depoimentos">Depoimentos</a>
             <?php if ($user): ?>
                 <a href="admin.php">Admin</a>
